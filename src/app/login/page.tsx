@@ -4,7 +4,7 @@ import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-const LoginPage: React.FC = () => {
+const LoginPage: React.FC = (e) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -12,33 +12,70 @@ const LoginPage: React.FC = () => {
   const router = useRouter();
 
   const token = session?.user?.accesstoken;
+  const refreshToken = async () => {
+    try {
+      console.log(1);
+      const authToken = Cookies.get("auth_token");
+      if (authToken) {
+        const response = await fetch("/api/users/refreshtoken", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+        if (response.ok) {
+          const data = await response.json();
+          const newToken = data.newToken;
+
+          Cookies.set("auth_token", newToken, {
+            expires: 300 / (24 * 60 * 60),
+          });
+        } else {
+          console.error("Failed to refresh token");
+        }
+      } else {
+        console.error("Auth token not found in cookies");
+      }
+    } catch (error) {
+      console.error("Error refreshing token:", error);
+    }
+  };
+
+  const handleLogin = async () => {
     setLoading(true);
-
     const result = await signIn("credentials", {
       email,
       password,
     });
 
-    console.log(result);
-
     if (result?.error) {
       console.error(result.error);
     } else {
+      setLoading(false);
+      const token = session?.user?.accesstoken;
       if (token) {
-        const expirationTimeInSeconds = 60; // 10 seconds
+        const expirationTimeInSeconds = 300;
         Cookies.set("auth_token", token, {
           expires: expirationTimeInSeconds / (24 * 60 * 60),
-        }); // Convert seconds to days
+        });
+        resetToken();
+        // alert("/profile");
+        // router.push("/profile");
       }
-
-      alert("/profile");
-      router.push("/profile");
     }
+  };
 
-    setLoading(false);
+  const resetToken = async () => {
+    console.log("resetToken called");
+    setInterval(() => {
+      refreshToken();
+    }, 40000);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleLogin();
   };
 
   return (

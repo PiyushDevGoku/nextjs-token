@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       email: user.email,
     };
     //create token
-    const token = await jwt.sign(tokenData, "122bhdbc", { expiresIn: "1m" });
+    const token = await jwt.sign(tokenData, "122bhdbc", { expiresIn: "5m" });
 
     const response = NextResponse.json({
       user,

@@ -2,22 +2,18 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname;
-
-  const isPublicPath =
-    path === "/login" || path === "/signup" || path === "/verifyemail";
-
-  const token = request.cookies.get("auth_token")?.value || "";
-  const nextAuthSessionToken =
-    request.cookies.get("next-auth.session-token")?.value || "";
-
-  if (isPublicPath && token && nextAuthSessionToken) {
-    return NextResponse.redirect(new URL("/profile", request.nextUrl));
-  }
-
-  if (!isPublicPath && !token) {
-    return NextResponse.redirect(new URL("/login", request.nextUrl));
-  }
+  // const path = request.nextUrl.pathname;
+  // const isPublicPath =
+  //   path === "/login" || path === "/signup" || path === "/verifyemail";
+  // const token = request.cookies.get("auth_token")?.value || "";
+  // const nextAuthSessionToken =
+  //   request.cookies.get("next-auth.session-token")?.value || "";
+  // if (isPublicPath) {
+  //   //  return NextResponse.redirect(new URL("/profile", request.nextUrl));
+  // }
+  // if (!isPublicPath && !token) {
+  //   // return NextResponse.redirect(new URL("/login", request.nextUrl));
+  // }
 }
 
 // See "Matching Paths" below to learn more
